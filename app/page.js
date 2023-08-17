@@ -1,63 +1,34 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 
 export default function Home() {
-  const pos1 = usePointerPosition();
-  const pos2 = useDelayedValue(pos1, 500);
-  const pos3 = useDelayedValue(pos2, 600);
-  const pos4 = useDelayedValue(pos3, 700);
-  const pos5 = useDelayedValue(pos4, 800);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   return (
     <>
-      <Dot position={pos1} opacity={1} />
-      <Dot position={pos2} opacity={0.8}/>
-      <Dot position={pos3} opacity={0.6}/>
-      <Dot position={pos4} opacity={0.4}/>
-      <Dot position={pos5} opacity={0.2}/>
+      <button onClick={() => setIsPlaying(!isPlaying)}>
+        {isPlaying ? 'Pause' : 'Play'}
+      </button>
+      <VideoPlayer
+        isPlaying={isPlaying}
+        src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+      />
     </>
-  );
+  )
 }
 
-function Dot({ position, opacity }) {
-  return (
-    <div style={{
-      position: 'absolute',
-      backgroundColor: 'pink',
-      borderRadius: '50%',
-      opacity,
-      transform: `translate(${position.x}px, ${position.y}px)`,
-      pointerEvents: 'none',
-      left: -20,
-      top: -20,
-      width: 40,
-      height: 40,
-    }} />
-  );
-}
-
-function usePointerPosition() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    function handleMove(e) {
-      setPosition({ x: e.clientX, y: e.clientY });
-    }
-    window.addEventListener('pointermove', handleMove);
-    return () => window.removeEventListener('pointermove', handleMove);
-  }, []);
-  return position;
-}
-
-function useDelayedValue(value, delay) {
-  const [delayedValue, setDelayedValue] = useState(value);
+function VideoPlayer({ src, isPlaying }) {
+  const ref = useRef(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setDelayedValue(value);
-    }, delay);
-  }, [value, delay]);
+    isPlaying ? (
+      ref.current.play()
+    ) : (
+      ref.current.pause()
+    )
+  }, [isPlaying])
 
-  return delayedValue;
+  return <video ref={ref} src={src} loop playsInline />;
 }
